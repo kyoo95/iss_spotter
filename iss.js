@@ -1,8 +1,26 @@
 const request = require('request');
 
 const nextISSTimesForMyLocation = function(callback) {
+  fetchMyIP((error, ip) => {
+    if (error) {
+      return callback(error, null);
+    }
 
-}
+    fetchCoordsByIP(ip, (error, loc) => {
+      if (error) {
+        return callback(error, null);
+      }
+
+      fetchISSFlyOverTimes(loc, (error, nextPasses) => {
+        if (error) {
+          return callback(error, null);
+        }
+
+        callback(null, nextPasses);
+      });
+    });
+  });
+};
 
 const fetchMyIP = function(callback) {
   const url = `https://api.ipify.org?format=json`;
@@ -15,7 +33,7 @@ const fetchMyIP = function(callback) {
       callback(Error(msg), null);
       return;
     } else {
-      callback(null, JSON.parse(body));
+      callback(null, JSON.parse(body).ip);
       return;
     }
   });
@@ -57,4 +75,4 @@ const fetchISSFlyOverTimes = function(coords, callback) {
 // https://ipvigilante.com/66.207.199.230/latitude
 // https://ipvigilante.com/66.207.199.230/longitude
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation };
+module.exports = { /* fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes,*/nextISSTimesForMyLocation };
